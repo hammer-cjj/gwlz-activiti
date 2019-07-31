@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.RwMapper">
+	<!-- 新增任务 -->
+	<insert id="addRw" useGeneratedKeys="true" keyProperty="id" parameterType="Rw">
+		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, zyFlag,rwCategoryId,pubTime,state,rwFjName,cq,score,completeSX,completeDate) 
+  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{zyFlag},#{rwCategoryId},#{pubTime},#{state},#{rwFjName},#{cq},#{score},#{completeSX},#{completeDate})
+	</insert>
+	
+	<!-- 修改任务 -->
+	<update id="editRw" parameterType="Rw">
+		update rw set rwTitle=#{rwTitle},startTime=#{startTime},endTime=#{endTime},rwFpId=#{rwFpId},rwZrId=#{rwZrId},rwCyId=#{rwCyId},rwContent=#{rwContent},
+		rwFj=#{rwFj},zyFlag=#{zyFlag},rwCategoryId=#{rwCategoryId},pubTime=#{pubTime},state=#{state},rwFjName=#{rwFjName},cq=#{cq},score=#{score},completeSX=#{completeSX},completeDate=#{completeDate}
+		where id = #{id}
+	</update>
+	
+	<!-- 查询属于我的任务，负责的，参与的 -->
+  	<select id="findMyRw" parameterType="User" resultType="Rw">
+  		SELECT
+			*
+		FROM
+			rw
+		WHERE
+			(FIND_IN_SET(#{id},rwCyId)
+		OR rwZrId = #{id})
+		and Year(pubTime) = Year(Now())
+  	</select>
+	
+	<!-- 根据任务Id查询 -->
+	<select id="findRwById" resultType="Rw">
+		select * from rw where id = #{0}	
+	</select>
+  
+  	<!-- 查看全部任务（处长和admin） -->
+  	<select id="listAllRw" parameterType="Rw" resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id
+		<where>
+			<if test="rwTitle != null">
+				rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+			</if>
+			<if test="rwZrId != null and rwZrId != -1">
+				and rwZrId = #{rwZrId}
+			</if>
+			<if test="state != null and state != -1">
+				and state = #{state}
+			</if>
+			<if test="cq != null and cq != -1">
+				and cq = #{cq}
+			</if>
+		</where>
+		ORDER BY
+			pubTime DESC 
+  	</select>
+  	
+  	<!-- 查看我分配的任务(副处长 ) -->
+  	<select id="listFpRw" parameterType="Rw"  resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName,
+			category.categoryName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id 
+		LEFT JOIN category ON category.id = rw.rwCategoryId
+		WHERE
+			rw.rwFpId = #{rwFpId} 
+		<if test="rwTitle != null">
+			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+		</if>	
+		<if test="rwZrId != null and rwZrId != -1">
+				and rwZrId = #{rwZrId}
+		</if>
+		<if test="state != null and state != -1">
+			and state = #{state}
+		</if>
+		<if test="cq != null and cq != -1">
+			and cq = #{cq}
+		</if>
+		ORDER BY
+			pubTime DESC
+  	</select>
+  	
+  	<!-- 查看我负责的任务 -->
+  	<select id="listZrRw" parameterType="Rw"  resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName,
+			category.categoryName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id 
+		LEFT JOIN category ON category.id = rw.rwCategoryId
+		WHERE
+			rw.rwZrId = #{rwZrId}
+		<if test="rwTitle != null">
+			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="state != null and state != -1">
+			and state = #{state}
+		</if>
+		<if test="cq != null and cq != -1">
+			and cq = #{cq}
+		</if>
+		ORDER BY
+			pubTime DESC
+  	</select>
+  	
+  	<!-- 查看我参与的任务 -->
+  	<select id="listCyRw" parameterType="Rw" resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName,
+			category.categoryName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id
+		LEFT JOIN category ON category.id = rw.rwCategoryId
+		WHERE
+			rw.id IN (
+				SELECT
+					rwId
+				FROM
+					rw_fp
+				WHERE
+					receiveId = #{rwCyId}
+			)
+		<if test="rwTitle != null">
+			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+		</if>
+		<if test="rwZrId != null and rwZrId != -1">
+				and rwZrId = #{rwZrId}
+		</if>
+		<if test="state != null and state != -1">
+			and state = #{state}
+		</if>
+		<if test="cq != null and cq != -1">
+			and cq = #{cq}
+		</if>
+		ORDER BY
+			pubTime DESC
+  	</select>
+  	
+  	<!-- 查询任务责任人，任务种类，任务起止日期，标题，内容，附件等 -->
+  	<select id="findRwExt"  resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName,
+			category.categoryName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id
+		LEFT JOIN category ON category.id = rw.rwCategoryId
+		WHERE
+			rw.id = #{0}
+  	</select>
+  	
+  	<!-- 查询任务分配人 -->
+  	<select id="findRwFp" resultType="User">
+  		select * from user where id = #{0}
+  	</select>
+  	
+  	<!-- 查询任务参与人 -->
+  	<select id="findRwCy" parameterType="java.util.ArrayList" resultType="User">
+  		select * from user where id in
+  		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+        	#{item}
+     	</foreach>
+  	</select>
+  	
+  	<!-- 任务签收 -->
+  	<update id="rwSign" >
+  		update rw set state = 1 where id = #{0}
+  	</update>
+  	
+  	<!-- 任务完成 -->
+  	<update id="rwComplete" >
+  		update rw set state = 2 where id = #{0}
+  	</update>
+  	
+  	<!-- 添加任务参与人 -->
+  	<update id="addRwCy" parameterType="Rw">
+  		update rw set rwCyId = #{rwCyId} where id = #{id}
+  	</update>
+  	
+  	<!-- 查询未签收，进行中,并且未超期的任务 -->
+  	<select id="listState_0_1" resultType="Rw">
+  		select * from rw where state  in (0,1) and cq != 1
+  	</select>
+  	
+  	<!-- 改变任务状态 -->
+  	<update id="updateRwState" parameterType="Rw">
+  		update rw set cq = #{cq} where id = #{id}
+  	</update>
+  	
+  	<!-- 处长权限，统计距离截止日期小等于3天的任务 -->
+  	<select id="countWeiCq" parameterType="User" resultType="Integer">
+  		SELECT
+			count(1)
+		FROM
+			rw
+		WHERE
+			state != 2
+		AND cq != 1
+		AND (
+			DATEDIFF(endTime, now()) &lt;= 3
+			AND DATEDIFF(endTime, now()) &gt;= 0
+		)
+  	</select>
+  	
+  	<!-- 责任人权限，统计距离截止日期小等于3天的任务 -->
+  	<select id="countWeiCqZr" parameterType="User" resultType="Integer">
+  		SELECT
+			count(1)
+		FROM
+			rw,
+			USER
+		WHERE
+			state != 2
+		AND cq != 1
+		AND user.id = rwZrId
+		AND rwZrId = #{id}
+		AND (
+			DATEDIFF(endTime, now()) &lt;= 3
+			AND DATEDIFF(endTime, now()) &gt;= 0
+		)
+  	</select>
+  	
+  	<!-- 参与人权限，统计距离截止日期小等于3天的任务 -->
+  	<select id="countWeiCqCy" parameterType="User" resultType="Integer">
+	  	SELECT
+			count(1)
+		FROM
+			rw
+		WHERE
+			state != 2
+		AND cq != 1
+		AND (
+			DATEDIFF(endTime, now()) &lt;= 3
+			AND DATEDIFF(endTime, now()) &gt;= 0
+		)
+		AND rw.id IN (
+			SELECT
+				rwId
+			FROM
+				rw_fp
+			WHERE
+				receiveId = #{id}
+		)
+  	</select>
+  	
+  	<!-- 删除任务 -->
+  	<delete id="removeRw">
+  		delete from rw where id = #{id}
+	</delete>
+  	
+  	
+  	
+  	<!-- 统计已超期 -->
+  	<!-- <select id="countCq" parameterType="User" resultType="Integer">
+  		SELECT
+			count(1)
+		FROM
+			rw
+		WHERE
+			state != 2
+		AND cq = 1
+  	</select> -->
+</mapper>

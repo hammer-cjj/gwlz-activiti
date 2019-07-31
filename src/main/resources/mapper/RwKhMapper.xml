@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.RwKhMapper">
+  <!-- 更新考核总分,重要任务个数，普通任务个数 -->
+  <update id="updateTotalScore" parameterType="java.util.List">
+  	<foreach collection="list" item="rwKh" index="index" open="" close="" separator=";">
+  		update rw_kh 
+  		<set>
+  			totalScore = #{rwKh.totalScore},
+  			zyTotal = #{rwKh.zyTotal},
+  			ptTotal = #{rwKh.ptTotal}
+  		</set>  
+  		<where>
+  			userId = #{rwKh.userId}
+  		</where>
+  	</foreach>
+  </update>
+  
+  <!-- 查询任务考核表的数据 -->
+  <select id="listRwKh" resultType="RwKh">
+  	select * from rw_kh order by totalScore desc,zyTotal desc,ptTotal desc,userId asc
+  </select>
+</mapper>

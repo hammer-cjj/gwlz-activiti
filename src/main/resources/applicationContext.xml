@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"  
+       xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     						http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+      						http://www.springframework.org/schema/tx 
+                        	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+ 
+    <context:annotation-config />
+    <context:component-scan base-package="com.zsga.cf.gwlz.service" />
+ 
+    <!-- 导入数据库配置文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!-- 配置数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 基本属性 url、user、password -->
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+ 
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="1" />
+        <property name="minIdle" value="1" />
+        <property name="maxActive" value="20" />
+ 
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000" />
+ 
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+ 
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+ 
+        <property name="validationQuery" value="SELECT 1" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+ 
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize"
+                  value="20" />
+    </bean>
+ 
+    <!--Mybatis的SessionFactory配置-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="typeAliasesPackage" value="com.zsga.cf.gwlz.pojo" />
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <!--分页插件，目前先注释，后面重构的时候才会使用-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <value>
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+ 
+    <!--Mybatis的Mapper文件识别-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.zsga.cf.gwlz.mapper"/>
+    </bean>
+    
+     <!-- 配置事务管理器 -->
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+ 
+ 	 <!-- 配置基于注解的声明式事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    
+    <!-- 线程执行器配置，用于任务注册 --> 
+    <bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">  
+	     <property name="corePoolSize" value="10" />  
+	     <property name="maxPoolSize" value="100" />  
+	     <property name="queueCapacity" value="500" />  
+    </bean>  
+    
+    <!-- 将需要添加定时任务调度的类配置到这里 -->
+    <bean id="stateTask" class="com.zsga.cf.gwlz.quartz.StateTask" />
+    <bean id="scoreTask" class="com.zsga.cf.gwlz.quartz.ScoreTask" />
+    
+    <!-- ============= 调度业务=============  -->
+    <bean id="stateTaskService" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 要调用的对象 -->
+        <property name="targetObject" ref="stateTask" />
+        <!-- 要执行的方法名称 -->
+        <property name="targetMethod" value="executeTask" />
+        <!-- 如果前一个任务还没有结束第二个任务不会启动 false -->
+        <property name="concurrent" value="false" />
+    </bean>
+    <bean id="scoreTaskService" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 要调用的对象 -->
+        <property name="targetObject" ref="scoreTask" />
+        <!-- 要执行的方法名称 -->
+        <property name="targetMethod" value="tjScore" />
+        <!-- 如果前一个任务还没有结束第二个任务不会启动 false -->
+        <property name="concurrent" value="false" />
+    </bean>
+    
+    <!-- ============= 调度触发器 ============= -->
+    <bean id="stateTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="stateTaskService" />
+        <!-- 每隔凌晨1点执行一次  0 0 1 * * ? -->
+        <property name="cronExpression" value="0 0 1 * * ?" />
+    </bean>
+     <bean id="scoreTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="scoreTaskService" />
+        <!-- 每隔凌晨2点执行一次  0 0 2 * * ? -->
+        <property name="cronExpression" value="0 0 2 * * ?" />
+    </bean>
+    
+    <!-- ============= 调度工厂 =============  -->
+    <bean id="schedulerBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false">
+        <property name="triggers">
+            <list>
+              <ref bean="stateTaskTrigger"/> 
+              <ref bean="scoreTaskTrigger"/> 
+            </list>
+        </property>
+    </bean>
+    
+
+</beans>

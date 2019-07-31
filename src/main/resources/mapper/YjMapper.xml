@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.YjMapper">
+	<!-- 添加意见 -->
+  <insert id="addYj" parameterType="Yj">
+  	insert into yj(yjTitle, yjContent, pubTime, userId)
+  	values(#{yjTitle}, #{yjContent}, #{pubTime}, #{userId})
+  </insert>
+  
+  <!-- 查看意见列表 -->
+  <select id="listYj" resultType="YjExt">
+  	SELECT
+		yj.*, user.realName
+	FROM
+		yj,
+		USER
+	WHERE
+		yj.userId = user.id
+	order by pubTime desc
+  </select>
+  
+  <!-- 按照Id查询意见 -->
+  <select id="findYj" resultType="Yj">
+  	select * from yj where id=#{0}
+  </select>
+</mapper>

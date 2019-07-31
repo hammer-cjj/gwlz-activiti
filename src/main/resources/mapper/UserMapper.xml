@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.UserMapper">
+  <select id="login" parameterType="User" resultType="User">
+    select * from user where userName = #{userName} and password = #{password}
+  </select>
+  
+  <select id="list" resultType="UserExt">
+	SELECT
+		u.id,
+		u.userName,
+		u. PASSWORD,
+		u.realName,
+		r.roleName,
+		u.tel,
+		r.id roleId,
+		d.deptName,
+		d.id deptId
+	FROM
+		USER u,
+		role r,
+		dept d
+	WHERE
+		u.roleId = r.id
+	AND d.id = u.deptId
+  </select>
+  
+  <select id="findUserByUserName" resultType="User">
+  	select * from user where userName = #{0}
+  </select>
+  
+  <select id="findUser" parameterType="User" resultType="User">
+  	select * from user where deptId = #{deptId} and roleId &gt; #{roleId}
+  </select>
+  
+  <select id="findCy" parameterType="User" resultType="User">
+  	select * from user where deptId = #{deptId} and roleId &gt; #{roleId}
+  </select>
+  
+  <select id="findSearchZrUser" parameterType="User" resultType="User">
+  	select * from user where deptId = #{deptId}
+  </select>
+  
+  <select id="findUserById" resultType="User">
+  	select * from user where id = #{0}
+  </select>
+  
+  <insert id="addUser" parameterType="User">
+  	insert into user(userName, password, deptId, roleId, realName, tel) 
+  	values(#{userName}, #{password}, #{deptId}, #{roleId}, #{realName}, #{tel})
+  </insert>
+  
+  <update id="updateUser" parameterType="User">
+  	update user set password = #{password}, deptId = #{deptId}, roleId = #{roleId},
+  	realName = #{realName}, tel=#{tel} where id = #{id}
+  </update>
+  
+  <update id="modifyPassword" parameterType="User">
+  	update user set password = #{password} where id = #{id}
+  </update>
+  
+  <delete id="removeUser" parameterType="java.util.List">
+  	delete from user where id in
+	<foreach collection="list" item="id" index="index" open="(" separator="," close=")">
+		#{id}
+	</foreach>
+  </delete>
+</mapper>

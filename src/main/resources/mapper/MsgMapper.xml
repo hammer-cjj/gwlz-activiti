@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.MsgMapper">
+	<!-- 添加意见 -->
+  <insert id="addMsg" parameterType="Msg">
+  	insert into message(content, flag, sendTime,tel)
+  	values(#{content}, #{flag}, #{sendTime}, #{tel})
+  </insert>
+  
+</mapper>

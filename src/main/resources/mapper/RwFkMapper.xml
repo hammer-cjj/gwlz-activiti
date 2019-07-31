@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.RwFkMapper">
+	<!-- 添加任务反馈 -->
+	<insert id="addRwFk"  parameterType="RwFk">
+		insert rw_fk(rwId, content, fkTime, userId, fkFj, fkFjName) 
+  		values(#{rwId},#{content},#{fkTime}, #{userId}, #{fkFj}, #{fkFjName})
+	</insert>
+	<!-- 查询任务反馈 -->
+	<select id="listRwFk" resultType="RwFkExt">
+		SELECT
+			rw_fk.*, user.realName fkName
+		FROM
+			rw_fk
+		LEFT JOIN USER ON user.id = rw_fk.userId
+		WHERE
+			rw_fk.rwId = #{0}
+	</select>
+  	<!-- 删除任务反馈 -->
+  	<delete id="delRwFk">
+  		DELETE from  rw_fk  where rwId = #{0}
+  	</delete>
+</mapper>

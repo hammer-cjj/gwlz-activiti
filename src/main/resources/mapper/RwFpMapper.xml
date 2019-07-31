@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.zsga.cf.gwlz.mapper.RwFpMapper">
+	<insert id="addRwFp"  parameterType="RwFp">
+		insert rw_fp(sendId, receiveId, rwId) 
+  		values(#{sendId},#{receiveId},#{rwId})
+	</insert>
+	
+	<delete id="delRwFp">
+		DELETE from  rw_fp  where rwId = #{0}
+	</delete>
+  
+</mapper>
