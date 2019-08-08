@@ -125,4 +125,13 @@ public class IndexController {
 		
 		return null;
 	}
+	
+	/**
+	 * 跳转到备忘任务管理页面
+	 * @return
+	 */
+	@RequestMapping("/rwManageBw")
+	public String rwManageBw() {
+		return "rwManageBw";
+	}
 }

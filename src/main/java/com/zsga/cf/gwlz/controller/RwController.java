@@ -480,6 +480,8 @@ public class RwController {
 		if (rw.getCompleteSX() == null) {
 			rw.setCompleteSX(0);
 		}
+		//任务下发
+		rw.setBwFlag(1);
 		
 		//是否是重要任务
 		String zyFlag = request.getParameter("zyFlagStr");
@@ -599,6 +601,112 @@ public class RwController {
 		return modelMap;
 	}
 	
+	
+	/**
+	 * 添加，修改任务（存在备忘录中，暂时不下发）
+	 * @param rw
+	 * @param reCyId
+	 * @param fj
+	 * @param request
+	 * @return
+	 * @throws Exception 
+	 */
+	@RequestMapping("/saveBw")
+	@ResponseBody
+	public Map<String, Object> saveRwBw(Rw rw, String[] rwCyId, MultipartFile fj,HttpServletRequest request) throws Exception {
+		int resultCode = 0;
+		Map<String, Object> modelMap = new HashMap<>();
+		
+		//获取session中的用户，即当前登入用户
+		User user = (User) request.getSession().getAttribute("currentUser");
+		if (null == user) {
+			throw new UserSessionException("登陆超时，请重新登陆!");
+		}
+		//上传附件
+		String fileName = fj.getOriginalFilename();
+		if (StringUtils.isNotBlank(fileName)) { //判断是否有文件上传
+			String rootPath = request.getServletContext().getRealPath("upload");
+			
+			String suffix = fileName.substring(fileName.lastIndexOf("."));
+			String tempFileName = UUID.randomUUID().toString() + suffix;
+			File fileTemp = new File(rootPath);
+			if (!fileTemp.exists()) {
+				fileTemp.mkdir();
+			}
+			
+			File file = new File(rootPath + "\\" + tempFileName);
+			
+			try {
+				fj.transferTo(file);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			//存入相对路径
+			rw.setRwFj("upload/" + tempFileName);
+			//存入附件真实名称
+			rw.setRwFjName(fileName);
+		}
+		
+		//存入任务发布时间
+//		rw.setPubTime(null);
+		//任务完成标志
+		if (rw.getState() == null) {
+			rw.setState(0);
+		}
+		//任务超期标志
+		if (rw.getCq() == null) {
+			rw.setCq(0);
+		}
+		//任务分数
+		if (rw.getScore() == null) {
+			rw.setScore(0);
+		}
+		//任务完成时效
+		if (rw.getCompleteSX() == null) {
+			rw.setCompleteSX(0);
+		}
+		//任务暂不下发
+		rw.setBwFlag(0);
+		
+		//是否是重要任务
+		String zyFlag = request.getParameter("zyFlagStr");
+		
+		if ("on".equals(zyFlag)) {
+			rw.setZyFlag(1);
+		} else {
+			rw.setZyFlag(0);
+		}
+		
+		if (null != rw.getId()) {
+			//修改任务
+			resultCode = rwService.editRw(rw);
+		} else {
+			//新增任务
+			resultCode = rwService.addRw(rw);
+		}
+		
+		if (0 == resultCode) { //插入任务表失败
+			modelMap.put("errorMsg", "任务发布失败！");
+		} else { //插入任务分配表
+			//删除任务分配表中任务ID等于该任务的数据
+			rwFpService.delRw(rw.getId());
+			if (null != rwCyId) {
+				for (int i=0; i<rwCyId.length; i++) {
+					RwFp rwFp = new RwFp(); 
+					rwFp.setReceiveId(Integer.parseInt(rwCyId[i]));
+					rwFp.setRwId(rw.getId());
+					rwFp.setSendId(user.getId());
+					rwFpService.addRwFp(rwFp);
+				}
+			}
+			modelMap.put("success", true);			
+		}
+		
+		return modelMap;
+	}
+	
 	/**
 	 * 查询任务列表
 	 * @param request
@@ -614,6 +722,35 @@ public class RwController {
 		if (null != user) {
 			if (user.getRoleId() == 1 || user.getRoleId() == 0) { //处长权限，可以查看所有任务
 				List<RwExt> rwExtList = rwService.listAllRw(rw);
+				if (null != rwExtList) {
+					PageInfo<RwExt> pageInfo = new PageInfo<>(rwExtList);
+					modelMap.put("rows", pageInfo.getList());
+					modelMap.put("total", pageInfo.getTotal());
+				}
+			} 
+		} else { //session失效
+			modelMap.put("rows", new ArrayList());
+			modelMap.put("total", 0);
+			modelMap.put("errFlag", true);
+		}
+		return modelMap;
+	}
+	
+	/**
+	 * 查询备忘任务列表
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/listBw")
+	public Map<String, Object> listBw(Rw rw,HttpServletRequest request, String page, String rows) {
+		Map<String, Object> modelMap = new HashMap<>();
+		PageHelper.startPage(Integer.parseInt(page), Integer.parseInt(rows));
+		//获取session中的用户，即当前登入用户
+		User user = (User) request.getSession().getAttribute("currentUser");
+		if (null != user) {
+			if (user.getRoleId() == 1 || user.getRoleId() == 0) { //处长权限，可以查看所有任务
+				List<RwExt> rwExtList = rwService.listAllRwBw(rw);
 				if (null != rwExtList) {
 					PageInfo<RwExt> pageInfo = new PageInfo<>(rwExtList);
 					modelMap.put("rows", pageInfo.getList());
@@ -775,5 +912,69 @@ public class RwController {
 		request.setAttribute("flag", Integer.parseInt(flag));
 		return "rwDetail";
 //		return modelMap;
+	}
+	
+	/**
+	 * 备忘录中完成督办
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping("/completeDb")
+	@ResponseBody
+	public Map<String, Object> completeDb(@RequestParam("id") String id) {
+		Map<String, Object> modelMap = new HashMap<>();
+		int code = rwService.completeDb(Integer.parseInt(id));
+		if (code > 0) {
+			//需要发送短信的电话
+			List<String> arrayTel = new ArrayList<String>();
+			
+			Rw rw = rwService.findRwById(Integer.parseInt(id));
+			
+			//责任人
+			User zrUser = userService.findUserById(rw.getRwZrId());
+			arrayTel.add(zrUser.getTel());
+			
+			//任务参与人
+			String cyIds = rw.getRwCyId();
+			if (null != cyIds) {
+				String[] cyIdsArray = cyIds.split(",");
+				for (String s : cyIdsArray) {
+					User cyUser = userService.findUserById(Integer.parseInt(s));
+					arrayTel.add(cyUser.getTel());
+				}
+			}
+			
+			Msg msg = new Msg();
+			msg.setTel(arrayTel.toString());
+			
+			String[] destinationAddresses = new String[arrayTel.size()];
+			for (int i=0; i<destinationAddresses.length; i++) {
+				destinationAddresses[i] = arrayTel.get(i);
+			}
+			
+			
+			//发送时间
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String sendTime = sdf.format(new Date());
+			msg.setSendTime(sendTime);
+			
+			//发送内容
+			String message = "您有一条新的任务【"+rw.getRwTitle()+"】,请及时签收! " + sendTime;
+			msg.setContent(message);
+			
+			//添加任务标志位
+			msg.setFlag(0);
+			
+			//发送短信
+			//MessageUtil.sendMessage(destinationAddresses, message);
+			
+			//添加短信
+			msgMapper.addMsg(msg);
+			
+			modelMap.put("success", true);
+		} else {
+			modelMap.put("success", false);
+		}
+		return modelMap;
 	}
 }

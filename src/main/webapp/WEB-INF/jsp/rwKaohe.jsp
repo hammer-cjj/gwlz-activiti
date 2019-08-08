@@ -131,6 +131,17 @@
 		}
 	}
 	
+	//附件下载
+	function formatFjUrl(val,row) {
+		if (val != '' && val != null) {
+			var fjName = row.fkFjName;
+			if (fjName.length > 15) {
+				fjName = fjName.substr(0,12)+"..."
+			}
+			return "<a target='_blank' href='${pageContext.request.contextPath}/"+val +"'>"+fjName+"</a>";
+		}
+	}
+	
 
 	//打开任务详细对话框
 	function openDdDiglog(id, val) {
@@ -199,6 +210,26 @@
 	 </table>
 </div>
 <!-- 查看某个用户的考核详情结束 -->
+
+<!-- 查看反馈日志开始 -->
+
+<div id="fk-dlg" class="easyui-dialog" title="查看反馈日志" style="width:800px;height:500px;"
+    data-options="closed:true">
+	<table id="fk-dg" class="easyui-datagrid" fit="true" scrollbarSize="0" style="width: 100%;height: 100%;"
+	   fitColumns="true" pagination="true" rownumbers="true" singleSelect="true" nowrap="false">
+	   <thead>
+	   	<tr>
+	   		<th field="fkName" width="50" align="center" >反馈人</th>
+	   		<th field="fkTime" width="50" align="center" formatter="formatPubtime">反馈日期</th>
+	   		<th field="content" width="100" align="center" >反馈内容</th>
+	   		<th field="fkFj" width="100" align="center" formatter="formatFjUrl">附件</th>
+	   		<th field="fkFjName" hidden="true"></th>
+	   	</tr>
+	   </thead>
+	 </table>
+</div>
+
+<!-- 查看反馈日志结束 -->
 
 <script type="text/javascript">
 $('#dg').datagrid({

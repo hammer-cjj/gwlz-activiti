@@ -43,6 +43,8 @@ public class Rw {
 	private Integer completeSX;
 	//任务完成日期
 	private Date completeDate;
+	//任务是否督办0：不督办；1：督办
+	private Integer bwFlag;
 	public Integer getId() {
 		return id;
 	}
@@ -150,5 +152,11 @@ public class Rw {
 	}
 	public void setCompleteDate(Date completeDate) {
 		this.completeDate = completeDate;
+	}
+	public Integer getBwFlag() {
+		return bwFlag;
+	}
+	public void setBwFlag(Integer bwFlag) {
+		this.bwFlag = bwFlag;
 	}
 }

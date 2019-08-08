@@ -6,13 +6,13 @@
 <mapper namespace="com.zsga.cf.gwlz.mapper.RwMapper">
 	<!-- 新增任务 -->
 	<insert id="addRw" useGeneratedKeys="true" keyProperty="id" parameterType="Rw">
-		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, zyFlag,rwCategoryId,pubTime,state,rwFjName,cq,score,completeSX,completeDate) 
-  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{zyFlag},#{rwCategoryId},#{pubTime},#{state},#{rwFjName},#{cq},#{score},#{completeSX},#{completeDate})
+		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, zyFlag,rwCategoryId,pubTime,state,rwFjName,cq,score,completeSX,completeDate,bwFlag) 
+  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{zyFlag},#{rwCategoryId},#{pubTime},#{state},#{rwFjName},#{cq},#{score},#{completeSX},#{completeDate},#{bwFlag})
 	</insert>
 	
 	<!-- 修改任务 -->
 	<update id="editRw" parameterType="Rw">
-		update rw set rwTitle=#{rwTitle},startTime=#{startTime},endTime=#{endTime},rwFpId=#{rwFpId},rwZrId=#{rwZrId},rwCyId=#{rwCyId},rwContent=#{rwContent},
+		update rw set rwTitle=#{rwTitle},startTime=#{startTime},endTime=#{endTime},rwFpId=#{rwFpId},rwZrId=#{rwZrId},rwCyId=#{rwCyId},rwContent=#{rwContent},bwFlag=#{bwFlag},
 		rwFj=#{rwFj},zyFlag=#{zyFlag},rwCategoryId=#{rwCategoryId},pubTime=#{pubTime},state=#{state},rwFjName=#{rwFjName},cq=#{cq},score=#{score},completeSX=#{completeSX},completeDate=#{completeDate}
 		where id = #{id}
 	</update>
@@ -26,7 +26,7 @@
 		WHERE
 			(FIND_IN_SET(#{id},rwCyId)
 		OR rwZrId = #{id})
-		and Year(pubTime) = Year(Now())
+		and bwFlag = 1 and Year(pubTime) = Year(Now())
   	</select>
 	
 	<!-- 根据任务Id查询 -->
@@ -34,7 +34,7 @@
 		select * from rw where id = #{0}	
 	</select>
   
-  	<!-- 查看全部任务（处长和admin） -->
+  	<!-- 查看全部已下发任务（处长和admin） -->
   	<select id="listAllRw" parameterType="Rw" resultType="RwExt">
   		SELECT
 			rw.*, user.realName realName
@@ -42,8 +42,35 @@
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id
 		<where>
+			bwFlag = 1
 			<if test="rwTitle != null">
-				rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+				and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+			</if>
+			<if test="rwZrId != null and rwZrId != -1">
+				and rwZrId = #{rwZrId}
+			</if>
+			<if test="state != null and state != -1">
+				and state = #{state}
+			</if>
+			<if test="cq != null and cq != -1">
+				and cq = #{cq}
+			</if>
+		</where>
+		ORDER BY
+			pubTime DESC 
+  	</select>
+  	
+  	<!-- 查看全部备忘任务（处长和admin） -->
+  	<select id="listAllRwBw" parameterType="Rw" resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id
+		<where>
+			bwFlag = 0
+			<if test="rwTitle != null">
+				and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 			</if>
 			<if test="rwZrId != null and rwZrId != -1">
 				and rwZrId = #{rwZrId}
@@ -69,7 +96,7 @@
 		LEFT JOIN USER ON rw.rwZrId = user.id 
 		LEFT JOIN category ON category.id = rw.rwCategoryId
 		WHERE
-			rw.rwFpId = #{rwFpId} 
+			rw.rwFpId = #{rwFpId} and bwFlag 
 		<if test="rwTitle != null">
 			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 		</if>	
@@ -96,7 +123,7 @@
 		LEFT JOIN USER ON rw.rwZrId = user.id 
 		LEFT JOIN category ON category.id = rw.rwCategoryId
 		WHERE
-			rw.rwZrId = #{rwZrId}
+			rw.rwZrId = #{rwZrId} and bwFlag
 		<if test="rwTitle != null">
 			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 		</if>
@@ -128,6 +155,7 @@
 				WHERE
 					receiveId = #{rwCyId}
 			)
+			and bwFlag = 1
 		<if test="rwTitle != null">
 			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 		</if>
@@ -185,9 +213,14 @@
   		update rw set rwCyId = #{rwCyId} where id = #{id}
   	</update>
   	
-  	<!-- 查询未签收，进行中,并且未超期的任务 -->
+  	<!-- 备忘录中完成督办 -->
+  	<update id="completeDb">
+  		update rw set bwFlag = 1,pubTime=now() where id = #{0}
+  	</update>
+  	
+  	<!-- 查询未签收，进行中,已下发,并且未超期的任务 -->
   	<select id="listState_0_1" resultType="Rw">
-  		select * from rw where state  in (0,1) and cq != 1
+  		select * from rw where state  in (0,1) and bwFlag = 1 and cq != 1
   	</select>
   	
   	<!-- 改变任务状态 -->
@@ -208,6 +241,7 @@
 			DATEDIFF(endTime, now()) &lt;= 3
 			AND DATEDIFF(endTime, now()) &gt;= 0
 		)
+		and bwFlag = 1
   	</select>
   	
   	<!-- 责任人权限，统计距离截止日期小等于3天的任务 -->
@@ -226,6 +260,7 @@
 			DATEDIFF(endTime, now()) &lt;= 3
 			AND DATEDIFF(endTime, now()) &gt;= 0
 		)
+		and bwFlag = 1
   	</select>
   	
   	<!-- 参与人权限，统计距离截止日期小等于3天的任务 -->
@@ -249,6 +284,7 @@
 			WHERE
 				receiveId = #{id}
 		)
+		and bwFlag = 1
   	</select>
   	
   	<!-- 删除任务 -->

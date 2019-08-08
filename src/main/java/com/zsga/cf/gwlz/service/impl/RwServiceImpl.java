@@ -95,6 +95,22 @@ public class RwServiceImpl implements RwService {
 	}
 
 	/**
+	 * 查询所有备忘任务
+	 */
+	@Override
+	public List<RwExt> listAllRwBw(Rw rw) {
+		return rwMapper.listAllRwBw(rw);
+	}
+
+	/**
+	 * 备忘录中完成督办
+	 */
+	@Override
+	public int completeDb(int id) {
+		return rwMapper.completeDb(id);
+	}
+
+	/**
 	 * 统计已经超期
 	 */
 	/*@Override

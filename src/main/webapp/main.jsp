@@ -129,6 +129,7 @@
 				<c:choose>
 					<c:when test="${currentUser.roleId == 1 or  currentUser.roleId == 0}">
 				<a href="javascript:openTab('任务督办管理','rwManage','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">任务督办管理</a>
+				<a href="javascript:openTab('备忘任务管理','rwManageBw','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">备忘任务管理</a>
 					</c:when>
 					<c:otherwise>
 						<c:if test="${currentUser.roleId == 2 }">
