@@ -160,6 +160,14 @@
 	    	$(this).siblings().attr("checked",false); //设置当前选中的checkbox同级(兄弟级)其他checkbox状态为未选中
 		});
 	});
+	
+	//文件预览
+	function openYulan(url) {
+		if (url != null && url != '') {
+			url = "http://127.0.0.1:8080"+url;
+			window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(url),'_blank');
+		}
+	}
 </script>
 <style type="text/css">
 	body {
@@ -350,6 +358,9 @@
 		<td width="15%">任务附件</td>
 		<td colspan="3">
 			<a target="_blank" href="${pageContext.request.contextPath}/${rwDetail.rwFj }">${rwDetail.rwFjName }</a>
+			<c:if test="${rwDetail.rwFjName != null }">
+				&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="openYulan('${pageContext.request.contextPath}/${rwDetail.rwFj }')" style="text-decoration: none;color:#0080ff;">文件预览</a>
+			</c:if>
 		</td>
 	</tr>
 	<tr><td colspan="4" height="3px"></td></tr>

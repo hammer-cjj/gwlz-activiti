@@ -32,12 +32,12 @@ import com.zsga.cf.gwlz.pojo.RwDetail;
 import com.zsga.cf.gwlz.pojo.RwExt;
 import com.zsga.cf.gwlz.pojo.RwFk;
 import com.zsga.cf.gwlz.pojo.RwFp;
-import com.zsga.cf.gwlz.pojo.RwKh;
 import com.zsga.cf.gwlz.pojo.User;
 import com.zsga.cf.gwlz.service.RwFkService;
 import com.zsga.cf.gwlz.service.RwFpService;
 import com.zsga.cf.gwlz.service.RwService;
 import com.zsga.cf.gwlz.service.UserService;
+import com.zsga.cf.gwlz.util.InterfaceUtil;
 import com.zsga.cf.gwlz.util.MessageUtil;
 
 @Controller
@@ -460,6 +460,8 @@ public class RwController {
 			rw.setRwFj("upload/" + tempFileName);
 			//存入附件真实名称
 			rw.setRwFjName(fileName);
+			//可使用预览转码队列，将需要预览的文件url放入队列中，提前进行转码，
+			//InterfaceUtil.doGet("http://127.0.0.1:8012/addTask?url=http://127.0.0.1:8080/gwlz-activiti/"+rw.getRwFj(), "utf-8");
 		}
 		
 		//存入任务发布时间

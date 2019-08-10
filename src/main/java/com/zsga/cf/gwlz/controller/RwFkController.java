@@ -26,6 +26,7 @@ import com.zsga.cf.gwlz.pojo.RwFkExt;
 import com.zsga.cf.gwlz.pojo.User;
 import com.zsga.cf.gwlz.service.RwFkService;
 import com.zsga.cf.gwlz.service.RwService;
+import com.zsga.cf.gwlz.util.InterfaceUtil;
 
 @Controller
 @RequestMapping("/rwFk")
@@ -99,6 +100,9 @@ public class RwFkController {
 			rwFk.setFkFj("upload/" + tempFileName);
 			//存入附件真实名称
 			rwFk.setFkFjName(fileName);
+			
+			//可使用预览转码队列，将需要预览的文件url放入队列中，提前进行转码，
+			//InterfaceUtil.doGet("http://127.0.0.1:8012/addTask?url=http://127.0.0.1:8080/gwlz-activiti/"+rwFk.getFkFj(), "utf-8");
 		}
 		
 		//批示任务完成情况 0：未完成；1：一般；2：较好

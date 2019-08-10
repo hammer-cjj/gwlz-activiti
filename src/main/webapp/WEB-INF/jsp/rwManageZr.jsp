@@ -123,10 +123,18 @@
 	}
 	
 	//操作栏
-	/* function formateOperator(val, row) {
-		return '<a href="#" class="rwfpBtn">任务分配 </a>&nbsp;&nbsp;<a class="tjpsBtn">添加批示</a>';
+	function formateOperator(val, row) {
+		return "<a href='#' onclick='openYulan(&quot;"+row.fkFj+"&quot;)'  class='fjYlBtn'>附件预览 </a>";
 
-	} */
+	}
+	
+	//文件预览
+	function openYulan(url) {
+		if (url != 'null' && url != '') {
+			url = "http://127.0.0.1:8080/gwlz-activiti/"+url;
+			window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(url),'_blank');
+		}
+	}
 	
 	//附件下载
 	function formatFjUrl(val,row) {
@@ -306,6 +314,7 @@
 	   		<th field="fkTime" width="50" align="center" formatter="formatPubtime">反馈日期</th>
 	   		<th field="content" width="100" align="center" >反馈内容</th>
 	   		<th field="fkFj" width="100" align="center" formatter="formatFjUrl">附件</th>
+	   		<th field="fkYl" width="50" align="center" formatter="formateOperator">操作</th>
 	   		<th field="fkFjName" hidden="true"></th>
 	   	</tr>
 	   </thead>
@@ -315,14 +324,11 @@
 <!-- 查看反馈日志结束 -->
  
 <script type="text/javascript">
-/* 
-$("#dg").datagrid({
+$("#fk-dg").datagrid({
 	onLoadSuccess:function(data){
-		$(".rwfpBtn").linkbutton({text:"任务分配", plain:true});
-		$(".tjpsBtn").linkbutton({text:"添加批示", plain:true});
+		$(".fjYlBtn").linkbutton({text:"附件预览", plain:true});
 	}
 });
- */
  
 //session失效跳转至登陆界面
  $('#dg').datagrid({
