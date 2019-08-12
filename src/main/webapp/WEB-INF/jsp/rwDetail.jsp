@@ -66,9 +66,12 @@
 		//任务批示置为2
 		$('#fkWcFlag').val("2");
 		$('#fk-ps').html("批示内容");
-		var qkTr = "<tr><td width='80px' height='10px'>完成情况</td><td><input type='radio' name='completeQK' value='2' />较好";
+		//fix bug。添加批示关闭后，再添加批示，完成情况增加一行。
+		$('#fk-tr1').remove();
+		$('#fk-tr2').remove();
+		var qkTr = "<tr id='fk-tr1'><td width='80px' height='10px'>完成情况</td><td><input type='radio' name='completeQK' value='2' />较好";
 		qkTr += " <input type='radio' name='completeQK' value='1' />一般 <input type='radio' name='completeQK' value='0' />未完成";
-		qkTr += "</td></tr><tr><td colspan='2' height='10px'></td></tr>";	
+		qkTr += "</td></tr><tr id='fk-tr2'><td colspan='2' height='10px'></td></tr>";	
 		$('#qk').after(qkTr);
 	}
 	
@@ -93,9 +96,10 @@
 						$('#fk-add').dialog('close');
 						parent.$('#dd').dialog('refresh');
 					} else {
-						$.messager.alert("系统提示","保存失败！");
-						$('#fk-add').dialog('close');
-						 
+						$.messager.alert("系统提示","保存失败！ "+result.errMsg, "error", function(){
+							$('#fk-add').dialog('close');
+							parent.$('#dd').dialog('close');
+						});
 					}
 				}
 			});
@@ -392,6 +396,7 @@
     			<input type="file"  name="fj"  />
     		</td>
     	</tr>
+    	<tr><td width="80px"></td><td>附件最大50M</td></tr>
     	<!-- 任务反馈还是完成的标志位 -->
     	<tr><td colspan="2" height="10px"><input type="hidden" id="fkWcFlag"  value="" /></td></tr>
     	<tr>

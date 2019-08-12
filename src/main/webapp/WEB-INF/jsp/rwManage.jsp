@@ -280,7 +280,9 @@
 						$('#dlg').dialog('close');		// close the dialog
 						$('#dg').datagrid('reload');	// reload the user data
 					} else {
-						parent.parent.window.location.href="login.jsp";
+						$.messager.alert('Error',result.errMsg, 'error'); 
+						$('#dlg').dialog('close');
+						//parent.parent.window.location.href="login.jsp";
 					}
 				}	
 			});

@@ -113,27 +113,27 @@ public class RwFkController {
 			int score = 0;
 			if (rw.getZyFlag() == 1) { //重要任务
 				switch (scoreFlag) {
-					case 2:
-						score = 4; //重要任务完成较好得4分
-						break;
-					case 1:
-						score = 2; //重要任务完成一般得2分
-						break;
-					default:
-						score = 0; //未完成0分
-						break;
+				case 2:
+					score = 4; //重要任务完成较好得4分
+					break;
+				case 1:
+					score = 2; //重要任务完成一般得2分
+					break;
+				default:
+					score = 0; //未完成0分
+					break;
 				}
 			} else if (rw.getZyFlag() == 0) { //其它任务
 				switch (scoreFlag) {
-					case 2:
-						score = 2; //其他任务完成较好得2分
-						break;
-					case 1:
-						score = 1; //其他任务完成一般得1分
-						break;
-					default:
-						score = 0; //未完成0分
-						break;
+				case 2:
+					score = 2; //其他任务完成较好得2分
+					break;
+				case 1:
+					score = 1; //其他任务完成一般得1分
+					break;
+				default:
+					score = 0; //未完成0分
+					break;
 				}
 			}
 			rw.setScore(score);
