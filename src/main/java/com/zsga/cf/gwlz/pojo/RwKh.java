@@ -12,11 +12,9 @@ public class RwKh {
 	//真实姓名
 	private String realName;
 	//总分
-	private Integer totalScore;
-	//重要任务个数
-	private Integer zyTotal;
-	//普通任务个数
-	private Integer ptTotal;
+	private Double totalScore;
+	//任务个数
+	private Integer count;
 	public Integer getId() {
 		return id;
 	}
@@ -35,23 +33,16 @@ public class RwKh {
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
-	public Integer getTotalScore() {
+	public Double getTotalScore() {
 		return totalScore;
 	}
-	public void setTotalScore(Integer totalScore) {
+	public void setTotalScore(Double totalScore) {
 		this.totalScore = totalScore;
 	}
-	public Integer getZyTotal() {
-		return zyTotal;
+	public Integer getCount() {
+		return count;
 	}
-	public void setZyTotal(Integer zyTotal) {
-		this.zyTotal = zyTotal;
+	public void setCount(Integer count) {
+		this.count = count;
 	}
-	public Integer getPtTotal() {
-		return ptTotal;
-	}
-	public void setPtTotal(Integer ptTotal) {
-		this.ptTotal = ptTotal;
-	}
-	
 }

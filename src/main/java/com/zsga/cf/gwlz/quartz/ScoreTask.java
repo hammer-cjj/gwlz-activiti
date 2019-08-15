@@ -38,9 +38,8 @@ public class ScoreTask {
 		List<UserExt> userExtList = userService.list();
 		List<RwKh> rwKhList = new ArrayList<RwKh>();
 		for (UserExt userExt : userExtList) {
-			int totalScore = 0;
-			int zyTotal = 0;
-			int ptTotal = 0;
+			double totalScore = 0;
+			int count = 0;
 			RwKh rwKh = new RwKh();
 			//设置真实姓名
 			rwKh.setRealName(userExt.getRealName());
@@ -49,17 +48,30 @@ public class ScoreTask {
 			//查询有关用户的所有任务
 			List<Rw> rwList = rwService.findMyRw(userExt);
 			for (Rw rw : rwList) {
-				totalScore += rw.getScore();
-				if (rw.getZyFlag() == 1) {//重要任务
-					zyTotal += 1;
-				} else if (rw.getZyFlag() == 0) { //普通任务
-					ptTotal += 1;
+				int flag = rw.getCompleteQK();
+				double xishu = 0;
+				switch (flag) {
+					case 0:      //0未完成：系数为0
+						xishu = 0;
+						break;
+					case 1:      //1部分完成：系数为0.5
+						xishu = 0.5;
+						break;
+					case 2:      //2一般：系数为1
+						xishu = 1;
+						break;
+					case 3:      //3较好：系数为1.5
+						xishu = 1.5;
+						break;
+					default:
+						break;
 				}
+				double tempScore = xishu * (rw.getCompleteSX() + rw.getNandu() + rw.getDengji() + rw.getZhongyao());
+				totalScore += tempScore;
+				count += 1;
 			}
 			//设置重要任务个数
-			rwKh.setZyTotal(zyTotal);
-			//设置普通任务个数
-			rwKh.setPtTotal(ptTotal);
+			rwKh.setCount(count);
 			//设置总分
 			rwKh.setTotalScore(totalScore);
 			//加入列表

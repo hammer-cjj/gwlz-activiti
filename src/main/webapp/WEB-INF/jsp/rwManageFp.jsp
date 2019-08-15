@@ -37,8 +37,8 @@
 	}
 	
 	function formatTitle(val,row){
-		if (row.zyFlag == 1) {
-			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'><img style='vertical-align:middle;' width='13px' height='13px' src='static/images/zy.gif'/>"+val+"</a>";
+		if (val.length > 20) {
+			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'>"+val.substring(0,21)+"...</a>";
 		} else {
 			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'>"+val+"</a>";
 		}
@@ -133,11 +133,11 @@
 	function formateRwRx(val,row) {
 		if (val == 0) {
 			return "<font color='red'>未完成</font>";
-		} else if (val == 1) {
+		} else if (val == 3) {
 			return "提前完成";
 		} else if (val == 2) {
 			return "按时完成";
-		} else if (val == 3) {
+		} else if (val == 1) {
 			return "超期完成";
 		}
 	}
@@ -219,20 +219,67 @@
 				
 			}
 		});
-		//加载任务类别
-		$("#rwCategory").combobox({
+		
+		//加载任务等级
+		$("#rwDengJi").combobox({
 			panelHeight : 'auto',
 			valueField: 'label',
 			textField: 'value',
 			data:[{
 				label: '1',
-				value: '常规任务'
+				value: '一般'
 			},{
 				label: '2',
-				value: '重要工作'
+				value: '紧急'
 			},{
 				label: '3',
-				value: '其他'
+				value: '特别紧急'
+			}],
+			onLoadSuccess:function() {
+				var val = $(this).combobox("getData");
+				if (val != null) {
+					$(this).combobox("select",val[0].label);
+				}
+			}
+		});
+		
+		//加载任务难度
+		$("#rwNandu").combobox({
+			panelHeight : 'auto',
+			valueField: 'label',
+			textField: 'value',
+			data:[{
+				label: '1',
+				value: '一般'
+			},{
+				label: '3',
+				value: '困难'
+			},{
+				label: '5',
+				value: '特别困难'
+			}],
+			onLoadSuccess:function() {
+				var val = $(this).combobox("getData");
+				if (val != null) {
+					$(this).combobox("select",val[0].label);
+				}
+			}
+		});
+		
+		//加载任务重要性
+		$("#rwZhongYao").combobox({
+			panelHeight : 'auto',
+			valueField: 'label',
+			textField: 'value',
+			data:[{
+				label: '1',
+				value: '一般'
+			},{
+				label: '2',
+				value: '重要'
+			},{
+				label: '3',
+				value: '特别重要'
 			}],
 			onLoadSuccess:function() {
 				var val = $(this).combobox("getData");
@@ -347,23 +394,61 @@
 		                    				}
 		                    			}
 		                    		});
-		                    		//加载任务类别
-		                    		$("#rwCategory").combobox({
+		                    		//加载任务等级
+		                    		$("#rwDengJi").combobox({
 		                    			panelHeight : 'auto',
 		                    			valueField: 'label',
 		                    			textField: 'value',
 		                    			data:[{
 		                    				label: '1',
-		                    				value: '常规任务'
+		                    				value: '一般'
 		                    			},{
 		                    				label: '2',
-		                    				value: '重要工作'
+		                    				value: '紧急'
 		                    			},{
 		                    				label: '3',
-		                    				value: '其他'
+		                    				value: '特别紧急'
 		                    			}],
 		                    			onLoadSuccess:function() { //默认选中
-		                    				$(this).combobox("select",result.rw.rwCategoryId);
+		                    				$(this).combobox("select",result.rw.dengji);
+		                    			}
+		                    		});
+		                    		//加载任务难度
+		                    		$("#rwNandu").combobox({
+		                    			panelHeight : 'auto',
+		                    			valueField: 'label',
+		                    			textField: 'value',
+		                    			data:[{
+		                    				label: '1',
+		                    				value: '一般'
+		                    			},{
+		                    				label: '3',
+		                    				value: '困难'
+		                    			},{
+		                    				label: '5',
+		                    				value: '特别困难'
+		                    			}],
+		                    			onLoadSuccess:function() { //默认选中
+		                    				$(this).combobox("select",result.rw.nandu);
+		                    			}
+		                    		});
+		                    		//加载任务重要性
+		                    		$("#rwZhongYao").combobox({
+		                    			panelHeight : 'auto',
+		                    			valueField: 'label',
+		                    			textField: 'value',
+		                    			data:[{
+		                    				label: '1',
+		                    				value: '一般'
+		                    			},{
+		                    				label: '2',
+		                    				value: '重要'
+		                    			},{
+		                    				label: '3',
+		                    				value: '特别重要'
+		                    			}],
+		                    			onLoadSuccess:function() { //默认选中
+		                    				$(this).combobox("select",result.rw.zhongyao);
 		                    			}
 		                    		});
 		                    		//任务附件
@@ -390,9 +475,8 @@
    <thead>
    	<tr>
    		<!-- <th field="cb" checkbox="true" align="center"></th> -->
-   		<th field="rwCategoryId" width="50" align="center" formatter="formatRwCategory">任务类型</th>
    		<th field="rwTitle" width="50" align="center" formatter="formatTitle">标题</th>
-   		<th field="ztFlag" hidden="true" id="zyrw"></th>
+   		<!-- <th field="ztFlag" hidden="true" id="zyrw"></th> -->
    		<th field="realName" width="50" align="center" >责任人</th>
    		<!-- <th field="rwContent" width="100" align="center" >内容</th>
    		<th field="rwFj" width="100" align="center" formatter="formatFjUrl">附件</th> -->
@@ -443,11 +527,7 @@
 		<table>
 			<tr>
 				<td style="width: 110px;">任务标题</td>
-				<td colspan="2"><input style="width: 280px;" id="rwTitle" name="rwTitle" class="easyui-textbox" ></td>
-				<td>
-					<font color="red">&nbsp;*</font>
-					<input type="checkbox" id="zyFlagStr" name="zyFlagStr" style="vertical-align:middle;"/>重要任务
-				</td>
+				<td colspan="3"><input style="width: 280px;" id="rwTitle" name="rwTitle" class="easyui-textbox" ></td>
 			</tr>
 			<tr><td colspan="4" height="10px"><input type="hidden" id="rwId" name="id" /></td></td></tr>
 			<tr>
@@ -457,9 +537,20 @@
 					-
 					<input name="endTime" style="width:85px;" class="easyui-datebox" id="endTime" />
 				</td>
-				<td style="width: 110px;" align="center">任务类型</td>
+				<td style="width: 110px;" align="center">任务等级</td>
 				<td style="width: 190px;">
-					<input style="width: 100px;" id="rwCategory" name="rwCategoryId" class="easyui-combobox" />
+					<input style="width: 100px;" id="rwDengJi" name="dengji" class="easyui-combobox" />
+				</td>
+			</tr>
+			<tr><td colspan="4" height="10px"></td></tr>
+			<tr>
+				<td style="width: 110px;">任务难度</td>
+				<td style="width: 190px;">
+					<input style="width: 183px;" id="rwNandu" name="nandu" class="easyui-combobox" />
+				</td>
+				<td style="width: 110px;" align="center">任务重要性</td>
+				<td style="width: 190px;">
+					<input style="width: 100px;" id="rwZhongYao" name="zhongyao" class="easyui-combobox" />
 				</td>
 			</tr>
 			<tr><td colspan="4" height="10px"></td></tr>

@@ -107,14 +107,25 @@
 		 });
 	}
 	
+	//刷新任务考核
+	function refreshKaohe(){
+		$.post("${pageContext.request.contextPath}/rwKh/refreshKaohe",{},function(result){
+			if(result.success){
+				$.messager.alert("系统提示","已成功刷新！");
+			}else{
+				$.messager.alert("系统提示","刷新失败！");
+			}
+		},"json");
+	}
+	
 </script>
 </head>
 <body class="easyui-layout">
     <div region="north" style="height:100px;background-color: #E0ECFF">
-    	<table style="padding: 15px" width="100%">
+    	<table style="padding: 10px" width="100%">
 			<tr>
 				<td width="50%">
-					<img alt="logo" src="static/images/logo.gif">
+					<img alt="logo" src="static/images/logo.png">
 				</td>
 				<td valign="bottom" align="right" width="50%">
 					<font size="3">&nbsp;&nbsp;<strong>欢迎：</strong>${currentUser.realName }</font>
@@ -143,6 +154,7 @@
 			<c:if test="${currentUser.roleId == 1 or  currentUser.roleId == 0}">
 				<div title="任务考核管理"  data-options="iconCls:'icon-apply'" style="padding:10px">
 					<a href="javascript:openTab('任务考核','rwKaohe','icon-doc')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-doc'" style="width: 150px;">任务考核</a>
+					<a href="javascript:refreshKaohe()" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-refresh'" style="width: 150px;">刷新考核分数</a>
 				</div>
 			</c:if>
 			<div title="个人信息管理"  data-options="iconCls:'icon-grxx'" style="padding:10px">

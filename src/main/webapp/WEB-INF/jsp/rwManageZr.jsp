@@ -37,8 +37,8 @@
 	}
 	
 	function formatTitle(val,row){
-		if (row.zyFlag == 1) {
-			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'><img style='vertical-align:middle;' width='13px' height='13px' src='static/images/zy.gif'/>"+val+"</a>";
+		if (val.length > 20) {
+			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'>"+val.substring(0,21)+"...</a>";
 		} else {
 			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'>"+val+"</a>";
 		}
@@ -104,11 +104,11 @@
 	function formateRwRx(val,row) {
 		if (val == 0) {
 			return "<font color='red'>未完成</font>";
-		} else if (val == 1) {
+		} else if (val == 3) {
 			return "提前完成";
 		} else if (val == 2) {
 			return "按时完成";
-		} else if (val == 3) {
+		} else if (val == 1) {
 			return "超期完成";
 		}
 	}
@@ -160,93 +160,6 @@
 		$("#dd").dialog("open");
 	}
 	
-	//新增任务
-	function newRw() {
-		$('#dlg').dialog('open').dialog('setTitle','添加任务');
-		$('#fm').form('clear');
-		KindEditor.instances[0].html("");
-		url = '${pageContext.request.contextPath}/rw/save';
-		//加载责任人
-		$("#zr").combobox({
-			url:'${pageContext.request.contextPath}/user/findUser',
-			valueField:'id',
-			textField:'realName',
-			required: true
-		});
-		//任务分配人
-		$('#rwFpId').val('${currentUser.realName }');
-		$('#rwFpIdHidden').val('${currentUser.id }');
-		//加载参与人
-		$("#cy").combobox({
-			url:'${pageContext.request.contextPath}/user/findCy',
-			valueField:'id',
-			textField:'realName',
-			multiple:true,
-			multiline:true
-		});
-		//加载任务类别
-		$("#rwCategory").combobox({
-			panelHeight : 'auto',
-			valueField: 'label',
-			textField: 'value',
-			data:[{
-				label: '1',
-				value: '常规任务'
-			},{
-				label: '2',
-				value: '重要工作'
-			},{
-				label: '3',
-				value: '其他'
-			}],
-			onLoadSuccess:function() {
-				var val = $(this).combobox("getData");
-				if (val != null) {
-					$(this).combobox("select",val[0].label);
-				}
-			}
-		});
-	}
-	
-	//保存任务
-	function saveRw() {
-		//获取表单数据
-		var rwTitle = $("#rwTitle").val();
-		//var rwCategory = $("#rwCategory").val();
-		var rwContent = $("#editor_id").val();
-		//获取接受任务的用户Id
-		var rwCyId = $("#cy").combobox('getValues');
-		var startTime = $("#startTime").datebox("getValue");
-		var endTime = $("#endTime").datebox("getValue");
-		//对表单数据进行判断验证
-		if (rwTitle == null || rwTitle == '') {
-			alert("请输入任务标题!");
-		} else if (rwContent == null || rwContent == '') {
-			alert("请输入任务内容!")
-		} else if (rwCyId == null || rwCyId == '') {
-			alert("请分配任务参与人!")
-		} else if (startTime == null || startTime == '' ||
-				endTime == null || endTime == '') {
-				alert("请输入任务开始日期和截止日期");
-		} else {
-			$("#fm").form("submit",{ 
-				url:url,
-				success:function(result) {
-					var result = eval('('+result+')');
-					if (result.success){
-						$.messager.alert("系统提示","任务发布成功！");
-						$('#dlg').dialog('close');		// close the dialog
-						$('#dg').datagrid('reload');	// reload the user data
-					} else {
-						$.messager.alert('Error',result.errMsg, 'error'); 
-						$('#dlg').dialog('close');
-						//parent.parent.window.location.href="login.jsp";
-					}
-				}	
-			});
-			
-		}
-	} 
 	
 </script>
 </head>
@@ -256,29 +169,18 @@
    url="${pageContext.request.contextPath}/rw/listZr" fit="true" toolbar="#tb">
    <thead>
    	<tr>
-   		<!-- <th field="cb" checkbox="true" align="center"></th> -->
-   		<th field="rwCategoryId" width="50" align="center" formatter="formatRwCategory">任务类型</th>
    		<th field="rwTitle" width="50" align="center" formatter="formatTitle">标题</th>
-   		<th field="ztFlag" hidden="true" id="zyrw"></th>
    		<th field="realName" width="50" align="center" >责任人</th>
-   		<!-- <th field="rwContent" width="100" align="center" >内容</th>
-   		<th field="rwFj" width="100" align="center" formatter="formatFjUrl">附件</th> -->
    		<th field="startTime" width="50" align="center" formatter="formatStartEndTime">开始日期</th>
    		<th field="endTime" width="50" align="center" formatter="formatStartEndTime">截至日期</th>
    		<th field="state" width="50" align="center" formatter="formateRwstate">状态</th>
    		<th field="cq" align="center" formatter="formateRwCq">是否超期</th>
    		<th field="completeSX" width="50" align="center" formatter="formateRwRx">完成时效</th>
    		<th field="pubTime" width="50" align="center" formatter="formatPubtime">发布日期</th>
-   		<!-- <th field="operator" width="50" align="center" formatter="formateOperator">操作</th> -->
    	</tr>
    </thead>
  </table>
  <div id="tb">
- 	<div>
- 		<!-- <a href="javascript:newRw()" class="easyui-linkbutton" iconCls="icon-add" plain="true">新增</a> -->
- 		<!-- <a href="javascript:openBlogModifyTab()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a> -->
- 		<!-- <a href="javascript:deleteRw()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a> -->
- 	</div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
  	<div>
  		&nbsp;标题：&nbsp;<input type="text" id="s_title" size="20" onkeydown="if(event.keyCode==13) searchRw()"/>
  		&nbsp;状态：&nbsp;<select style="width:80px;" panelHeight="auto" editable="false" class="easyui-combobox" id="s_state" onkeydown="if(event.keyCode==13) searchRw()">

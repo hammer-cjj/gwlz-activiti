@@ -105,38 +105,27 @@ public class RwFkController {
 			//InterfaceUtil.doGet("http://127.0.0.1:8012/addTask?url=http://127.0.0.1:8080/gwlz-activiti/"+rwFk.getFkFj(), "utf-8");
 		}
 		
-		//批示任务完成情况 0：未完成；1：一般；2：较好
+		//批示任务完成情况 0：未完成；1:部分完成；2：一般；3：较好
 		String completeQK = request.getParameter("completeQK");
 		if (null != completeQK) {
-			int scoreFlag = Integer.parseInt(completeQK);
+			int qkFlag = Integer.parseInt(completeQK);
 			Rw rw = rwService.findRwById(rwFk.getRwId());
-			int score = 0;
-			if (rw.getZyFlag() == 1) { //重要任务
-				switch (scoreFlag) {
+			int flag = 0;
+			switch (qkFlag) {
+				case 3:
+					flag = 3; 
+					break;
 				case 2:
-					score = 4; //重要任务完成较好得4分
+					flag = 2; 
 					break;
 				case 1:
-					score = 2; //重要任务完成一般得2分
+					flag = 1; 
 					break;
 				default:
-					score = 0; //未完成0分
+					flag = 0; 
 					break;
-				}
-			} else if (rw.getZyFlag() == 0) { //其它任务
-				switch (scoreFlag) {
-				case 2:
-					score = 2; //其他任务完成较好得2分
-					break;
-				case 1:
-					score = 1; //其他任务完成一般得1分
-					break;
-				default:
-					score = 0; //未完成0分
-					break;
-				}
 			}
-			rw.setScore(score);
+			rw.setCompleteQK(flag);
 			rwService.editRw(rw); //更新任务分数
 			
 			//添加到考核表

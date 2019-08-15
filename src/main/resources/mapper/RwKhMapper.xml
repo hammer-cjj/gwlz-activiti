@@ -10,8 +10,7 @@
   		update rw_kh 
   		<set>
   			totalScore = #{rwKh.totalScore},
-  			zyTotal = #{rwKh.zyTotal},
-  			ptTotal = #{rwKh.ptTotal}
+  			count = #{rwKh.count}
   		</set>  
   		<where>
   			userId = #{rwKh.userId}
@@ -21,6 +20,6 @@
   
   <!-- 查询任务考核表的数据 -->
   <select id="listRwKh" resultType="RwKh">
-  	select * from rw_kh order by totalScore desc,zyTotal desc,ptTotal desc,userId asc
+  	select * from rw_kh order by totalScore desc,count desc,userId asc
   </select>
 </mapper>
