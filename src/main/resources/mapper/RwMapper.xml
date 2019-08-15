@@ -6,14 +6,14 @@
 <mapper namespace="com.zsga.cf.gwlz.mapper.RwMapper">
 	<!-- 新增任务 -->
 	<insert id="addRw" useGeneratedKeys="true" keyProperty="id" parameterType="Rw">
-		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, zyFlag,rwCategoryId,pubTime,state,rwFjName,cq,score,completeSX,completeDate,bwFlag) 
-  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{zyFlag},#{rwCategoryId},#{pubTime},#{state},#{rwFjName},#{cq},#{score},#{completeSX},#{completeDate},#{bwFlag})
+		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, pubTime,state,rwFjName,cq,completeQK,completeSX,completeDate,bwFlag,nandu,zhongyao,dengji) 
+  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{pubTime},#{state},#{rwFjName},#{cq},#{completeQK},#{completeSX},#{completeDate},#{bwFlag},#{nandu},#{zhongyao},#{dengji})
 	</insert>
 	
 	<!-- 修改任务 -->
 	<update id="editRw" parameterType="Rw">
 		update rw set rwTitle=#{rwTitle},startTime=#{startTime},endTime=#{endTime},rwFpId=#{rwFpId},rwZrId=#{rwZrId},rwCyId=#{rwCyId},rwContent=#{rwContent},bwFlag=#{bwFlag},
-		rwFj=#{rwFj},zyFlag=#{zyFlag},rwCategoryId=#{rwCategoryId},pubTime=#{pubTime},state=#{state},rwFjName=#{rwFjName},cq=#{cq},score=#{score},completeSX=#{completeSX},completeDate=#{completeDate}
+		rwFj=#{rwFj},pubTime=#{pubTime},state=#{state},rwFjName=#{rwFjName},cq=#{cq},completeQK=#{completeQK},completeSX=#{completeSX},completeDate=#{completeDate},nandu=#{nandu},zhongyao=#{zhongyao},dengji=#{dengji}
 		where id = #{id}
 	</update>
 	
@@ -27,6 +27,7 @@
 			(FIND_IN_SET(#{id},rwCyId)
 		OR rwZrId = #{id})
 		and bwFlag = 1 and Year(pubTime) = Year(Now())
+		order by completeDate desc,pubTime desc
   	</select>
 	
 	<!-- 根据任务Id查询 -->
@@ -89,12 +90,10 @@
   	<!-- 查看我分配的任务(副处长 ) -->
   	<select id="listFpRw" parameterType="Rw"  resultType="RwExt">
   		SELECT
-			rw.*, user.realName realName,
-			category.categoryName
+			rw.*, user.realName realName
 		FROM
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id 
-		LEFT JOIN category ON category.id = rw.rwCategoryId
 		WHERE
 			rw.rwFpId = #{rwFpId} and bwFlag 
 		<if test="rwTitle != null">
@@ -116,12 +115,10 @@
   	<!-- 查看我负责的任务 -->
   	<select id="listZrRw" parameterType="Rw"  resultType="RwExt">
   		SELECT
-			rw.*, user.realName realName,
-			category.categoryName
+			rw.*, user.realName realName
 		FROM
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id 
-		LEFT JOIN category ON category.id = rw.rwCategoryId
 		WHERE
 			rw.rwZrId = #{rwZrId} and bwFlag
 		<if test="rwTitle != null">
@@ -140,12 +137,10 @@
   	<!-- 查看我参与的任务 -->
   	<select id="listCyRw" parameterType="Rw" resultType="RwExt">
   		SELECT
-			rw.*, user.realName realName,
-			category.categoryName
+			rw.*, user.realName realName
 		FROM
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id
-		LEFT JOIN category ON category.id = rw.rwCategoryId
 		WHERE
 			rw.id IN (
 				SELECT
@@ -175,12 +170,10 @@
   	<!-- 查询任务责任人，任务种类，任务起止日期，标题，内容，附件等 -->
   	<select id="findRwExt"  resultType="RwExt">
   		SELECT
-			rw.*, user.realName realName,
-			category.categoryName
+			rw.*, user.realName realName
 		FROM
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id
-		LEFT JOIN category ON category.id = rw.rwCategoryId
 		WHERE
 			rw.id = #{0}
   	</select>

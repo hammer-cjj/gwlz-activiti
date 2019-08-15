@@ -1,5 +1,10 @@
 package com.zsga.cf.gwlz.pojo;
 
+/**
+ * 暂时不用
+ * @author quadcopter
+ *
+ */
 public class Category {
 	private Integer id;
 	private String categoryName;

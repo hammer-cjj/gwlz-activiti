@@ -50,7 +50,7 @@ public class UserController {
 		} else {
 			map.put("success", true);
 			request.getSession().setAttribute("currentUser", resultUser);
-			request.getSession().setMaxInactiveInterval(5);
+//			request.getSession().setMaxInactiveInterval(5);
 		}
 		return map;
 	}

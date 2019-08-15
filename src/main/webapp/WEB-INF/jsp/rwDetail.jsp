@@ -69,8 +69,9 @@
 		//fix bug。添加批示关闭后，再添加批示，完成情况增加一行。
 		$('#fk-tr1').remove();
 		$('#fk-tr2').remove();
-		var qkTr = "<tr id='fk-tr1'><td width='80px' height='10px'>完成情况</td><td><input type='radio' name='completeQK' value='2' />较好";
-		qkTr += " <input type='radio' name='completeQK' value='1' />一般 <input type='radio' name='completeQK' value='0' />未完成";
+		var qkTr = "<tr id='fk-tr1'><td width='80px' height='10px'>完成情况</td><td><input type='radio' name='completeQK' value='3' />较好";
+		qkTr += " <input type='radio' name='completeQK' value='2' />一般  <input type='radio' name='completeQK' value='1' />部分完成";
+		qkTr += " <input type='radio' name='completeQK' value='0' />未完成";
 		qkTr += "</td></tr><tr id='fk-tr2'><td colspan='2' height='10px'></td></tr>";	
 		$('#qk').after(qkTr);
 	}
@@ -271,23 +272,23 @@
 	</tr>
 	<tr>
 		<td colspan="4" style="background-color:#fffaf4;height:30px;valign:middle;">
-			<span>${rwDetail.rwTitle }</span>&nbsp;<span>[${rwDetail.categoryName }]</span>
+			<span>${rwDetail.rwTitle }</span>
 		</td>
 	</tr>
 	<tr>
 		<td width="15%">分配人</td>
 		<td width="35%" align="left">${rwDetail.fpName }</td>
-		<td width="15%">状态</td>
+		<td width="15%">任务等级</td>
 		<td width="35%" align="left">
 			<c:choose>
-				<c:when test="${rwDetail.state == 0 }">
-					待签收
+				<c:when test="${rwDetail.dengji == 1 }">
+					一般
 				</c:when>
-				<c:when test="${rwDetail.state == 1 }">
-					进行中
+				<c:when test="${rwDetail.dengji == 2 }">
+					紧急
 				</c:when>
-				<c:when test="${rwDetail.state == 2 }">
-					已完成
+				<c:when test="${rwDetail.dengji == 3 }">
+					特别紧急
 				</c:when>
 			</c:choose>
 		</td>
@@ -317,37 +318,32 @@
 		<td width="15%">完成时效</td>
 		<td width="35%">
 			<c:if test="${rwDetail.completeSX == 0 }">未完成</c:if>
-			<c:if test="${rwDetail.completeSX == 1 }">提前完成</c:if>
+			<c:if test="${rwDetail.completeSX == 3 }">提前完成</c:if>
 			<c:if test="${rwDetail.completeSX == 2 }">按时完成</c:if>
-			<c:if test="${rwDetail.completeSX == 3 }">超期完成</c:if>
+			<c:if test="${rwDetail.completeSX == 1 }">超期完成</c:if>
 		</td>
 		<td width="15%">完成情况</td>
 		<td width="35%">
-			<c:choose>
-				<c:when test="${rwDetail.score == 0 }">
-					未完成
-				</c:when>
-				<c:otherwise>
-					<!-- 重要任务 4分：较好；2分：一般 -->
-					<c:if test="${rwDetail.zyFlag == 1 }"> 
-						<c:if test="${rwDetail.score == 4 }">
-							较好
-						</c:if>
-						<c:if test="${rwDetail.score == 2 }">
-							一般
-						</c:if>
-					</c:if>
-					<!-- 一般任务 2分：较好；1分：一般 -->
-					<c:if test="${rwDetail.zyFlag == 0 }">
-						<c:if test="${rwDetail.score == 2 }">
-							较好
-						</c:if>
-						<c:if test="${rwDetail.score == 1 }">
-							一般
-						</c:if>
-					</c:if>
-				</c:otherwise>
-			</c:choose>
+			<!-- 3：较好；2：一般 ；1:部分完成； 0： 未完成-->
+			<c:if test="${rwDetail.completeQK == 0 }">未完成</c:if>
+			<c:if test="${rwDetail.completeQK == 1 }">部分完成</c:if>
+			<c:if test="${rwDetail.completeQK == 2 }">一般</c:if>
+			<c:if test="${rwDetail.completeQK == 3 }">较好</c:if>
+		</td>
+	</tr>
+	<tr><td colspan="4" height="3px"></td></tr>
+	<tr>
+		<td width="15%">任务难度</td>
+		<td width="35%">
+			<c:if test="${rwDetail.nandu == 1 }">一般</c:if>
+			<c:if test="${rwDetail.nandu == 3 }">困难</c:if>
+			<c:if test="${rwDetail.nandu == 5 }">特别困难</c:if>
+		</td>
+		<td width="15%">任务重要性</td>
+		<td width="35%">
+			<c:if test="${rwDetail.zhongyao == 1 }">一般</c:if>
+			<c:if test="${rwDetail.zhongyao == 2 }">重要</c:if>
+			<c:if test="${rwDetail.zhongyao == 3 }">特别重要</c:if>
 		</td>
 	</tr>
 	<tr><td colspan="4" height="3px"></td></tr>

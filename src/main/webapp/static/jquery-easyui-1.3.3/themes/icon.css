@@ -96,7 +96,9 @@
 	background:url('usericons/exit.png') no-repeat center center;
 }
 
-
+.icon-refresh{
+	background:url('usericons/refresh.png') no-repeat center center;
+}
 
 
 .icon-user{

@@ -28,17 +28,21 @@ public class RwDetail {
 	//附件真实名称
 	private String rwFjName;
 	//任务类别
-	private String categoryName;
+	//private String categoryName;
 	//任务状态
 	private Integer state;
 	//任务完成日期
 	private String completeDate;
 	//任务完成时效
 	private Integer completeSX;
-	//任务分数
-	private Integer score;
-	//是否重要
-	private Integer zyFlag;
+	//任务分数,按照完成情况分：较好：3，一般：2，未完成：0
+	private Integer completeQK;
+	//任务难度
+	private Integer nandu;
+	//任务重要性
+	private Integer zhongyao;
+	//任务等级
+	private Integer dengji;
 	public Integer getId() {
 		return id;
 	}
@@ -62,12 +66,6 @@ public class RwDetail {
 	}
 	public void setRwFj(String rwFj) {
 		this.rwFj = rwFj;
-	}
-	public String getCategoryName() {
-		return categoryName;
-	}
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
 	}
 	public String getZrName() {
 		return zrName;
@@ -123,16 +121,28 @@ public class RwDetail {
 	public void setCompleteSX(Integer completeSX) {
 		this.completeSX = completeSX;
 	}
-	public Integer getScore() {
-		return score;
+	public Integer getCompleteQK() {
+		return completeQK;
 	}
-	public void setScore(Integer score) {
-		this.score = score;
+	public void setCompleteQK(Integer completeQK) {
+		this.completeQK = completeQK;
 	}
-	public Integer getZyFlag() {
-		return zyFlag;
+	public Integer getNandu() {
+		return nandu;
 	}
-	public void setZyFlag(Integer zyFlag) {
-		this.zyFlag = zyFlag;
+	public void setNandu(Integer nandu) {
+		this.nandu = nandu;
+	}
+	public Integer getZhongyao() {
+		return zhongyao;
+	}
+	public void setZhongyao(Integer zhongyao) {
+		this.zhongyao = zhongyao;
+	}
+	public Integer getDengji() {
+		return dengji;
+	}
+	public void setDengji(Integer dengji) {
+		this.dengji = dengji;
 	}
 }

@@ -65,8 +65,9 @@ public class RwController {
 	 */
 	@RequestMapping("/findMyRw")
 	@ResponseBody
-	public Map<String, Object> findMyRw(HttpServletRequest request) {
+	public Map<String, Object> findMyRw(HttpServletRequest request,String page, String rows) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		PageHelper.startPage(Integer.parseInt(page), Integer.parseInt(rows));
 		String userId = request.getParameter("userId");
 		User user = new User();
 		user.setId(Integer.parseInt(userId));
@@ -327,12 +328,7 @@ public class RwController {
 					currentRw.setCompleteSX(1); //提前完成
 				}
 				//默认任务完成情况为一般
-				if (currentRw.getZyFlag() == 1) { //重要工作完成情况一般得2分
-					currentRw.setScore(2);
-				} else if (currentRw.getZyFlag() == 0){ //其它工作完成情况一般得1分
-					currentRw.setScore(1);
-				}
-				
+				currentRw.setCompleteQK(2);
 				//更新任务：分数，时效和完成时间
 				rwService.editRw(currentRw);
 				
@@ -475,8 +471,8 @@ public class RwController {
 			rw.setCq(0);
 		}
 		//任务分数
-		if (rw.getScore() == null) {
-			rw.setScore(0);
+		if (rw.getCompleteQK() == null) {
+			rw.setCompleteQK(0);
 		}
 		//任务完成时效
 		if (rw.getCompleteSX() == null) {
@@ -486,6 +482,7 @@ public class RwController {
 		rw.setBwFlag(1);
 		
 		//是否是重要任务
+		/*
 		String zyFlag = request.getParameter("zyFlagStr");
 		
 		if ("on".equals(zyFlag)) {
@@ -493,6 +490,7 @@ public class RwController {
 		} else {
 			rw.setZyFlag(0);
 		}
+		*/
 		
 		int sendMsgFlag = 0;//是否发送短信标志位：2：新增需要发送；1：修改责任人需要发送；0：不需要发送；3：参与人不同需要发送短信；4：责任人和参与人都不同
 		
@@ -662,8 +660,8 @@ public class RwController {
 			rw.setCq(0);
 		}
 		//任务分数
-		if (rw.getScore() == null) {
-			rw.setScore(0);
+		if (rw.getCompleteQK() == null) {
+			rw.setCompleteQK(0);
 		}
 		//任务完成时效
 		if (rw.getCompleteSX() == null) {
@@ -673,6 +671,7 @@ public class RwController {
 		rw.setBwFlag(0);
 		
 		//是否是重要任务
+		/*
 		String zyFlag = request.getParameter("zyFlagStr");
 		
 		if ("on".equals(zyFlag)) {
@@ -680,7 +679,7 @@ public class RwController {
 		} else {
 			rw.setZyFlag(0);
 		}
-		
+		*/
 		if (null != rw.getId()) {
 			//修改任务
 			resultCode = rwService.editRw(rw);
@@ -888,11 +887,17 @@ public class RwController {
 		//设置任务完成时效
 		rwDetail.setCompleteSX(rwExt.getCompleteSX());
 		//设置任务分数
-		rwDetail.setScore(rwExt.getScore());
+		rwDetail.setCompleteQK(rwExt.getCompleteQK());
+		//设置任务重要性
+		rwDetail.setNandu(rwExt.getNandu());
+		//设置任务难度
+		rwDetail.setZhongyao(rwExt.getZhongyao());
+		//设置任务等级
+		rwDetail.setDengji(rwExt.getDengji());
 		//设置是否重要
-		rwDetail.setZyFlag(rwExt.getZyFlag());
+		//rwDetail.setZyFlag(rwExt.getZyFlag());
 		//设置任务类型
-		rwDetail.setCategoryName(rwExt.getCategoryName());
+		//rwDetail.setCategoryName(rwExt.getCategoryName());
 		/**
 		 * 查询任务分配人
 		 */

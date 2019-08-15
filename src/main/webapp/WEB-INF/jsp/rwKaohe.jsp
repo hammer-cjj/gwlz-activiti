@@ -22,41 +22,17 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/static/kindeditor/themes/simple/simple.css" />
 <script type="text/javascript" charset="utf-8" src="${pageContext.request.contextPath}/static/kindeditor/kindeditor-all-min.js"></script>
 <script type="text/javascript" charset="utf-8" src="${pageContext.request.contextPath}/static/kindeditor/lang/zh-CN.js"></script>
+<script src="${pageContext.request.contextPath}/static/echarts/echarts.js"></script>
 <script type="text/javascript">
 
-	
-	//任务类型格式化显示
-	function formatRwCategory(val,row){
-		var returnVal = "";
-		if (val == 1) {
-			returnVal = "常规任务";
-		} else if (val == 2) {
-			returnVal = "重要工作";
-		} else if (val == 3) {
-			returnVal = "其他";
-		}
-		return returnVal;
-	}
-	
 	//标题格式化显示
 	function formatTitle(val,row){
-		if (row.zyFlag == 1) {
-			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'><img style='vertical-align:middle;' width='13px' height='13px' src='static/images/zy.gif'/>"+val+"</a>";
+		if (val.length > 20) {
+			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'>"+val.substring(0,21)+"...</a>";
 		} else {
 			return "<a href='javascript:openDdDiglog("+row.id+",&quot;"+row.rwTitle+"&quot;)'>"+val+"</a>";
 		}
 	}
-	
-	//搜索
-	function searchRw(){
-		$("#dg").datagrid('load',{
-			"rwTitle":$("#s_title").val(),
-			"state":$("#s_state").combobox('getValue'),
-			"rwZrId":$("#s_zr").combobox('getValue'),
-			"cq":$("#s_cq").combobox('getValue')
-		});
-	}
-	
 	
 	//对 Date.prototype 的扩展来实现的
 	Date.prototype.format = function(format) {
@@ -112,13 +88,13 @@
 	//任务完成时效
 	function formateRwRx(val,row) {
 		if (val == 0) {
-			return "<font color='red'>未完成</font>";
-		} else if (val == 1) {
-			return "提前完成";
-		} else if (val == 2) {
-			return "按时完成";
+			return "<font color='red'>未完成(0)</font>";
 		} else if (val == 3) {
-			return "超期完成";
+			return "提前完成(3)";
+		} else if (val == 2) {
+			return "按时完成(2)";
+		} else if (val == 1) {
+			return "超期完成(1)";
 		}
 	}
 	
@@ -128,6 +104,68 @@
 			return "<font color='red'>是</font>";
 		} else if (val == 0) {
 			return "否";
+		}
+	}
+	
+	//任务总分
+	function formateRwScore(val,row) {
+		var flag = row.completeQK
+		var xishu = 0
+		if (flag == 0) {  //未完成
+			xishu = 0;
+		} else if (flag == 1) { //部分完成
+			xishu = 0.5;
+		} else if (flag == 2) { //一般
+			xishu = 1;
+		} else if (flag == 3) { //较好
+			xishu = 1.5;
+		}
+		return xishu * (row.dengji + row.zhongyao + row.completeSX + row.nandu);
+	}
+	
+	//等级
+	function formateRwDengJi(val,row) {
+		if (val == 1) {
+			return "一般(1)";
+		} else if (val == 2) {
+			return "紧急(2)";
+		} else if (val == 3) {
+			return "特别紧急(3)";
+		}
+	}
+	
+	//难度
+	function formateRwNanDu(val,row) {
+		if (val == 1) {
+			return "一般(1)";
+		} else if (val == 3) {
+			return "困难(3)";
+		} else if (val == 5) {
+			return "特别困难(5)";
+		}
+	}
+	
+	//重要性
+	function formateRwZhongYao(val,row) {
+		if (val == 1) {
+			return "一般(1)";
+		} else if (val == 2) {
+			return "重要(2)";
+		} else if (val == 3) {
+			return "特别重要(3)";
+		}
+	}
+	
+	//完成情况
+	function formateRwQk(val, row) {
+		if (val == 0) {
+			return "未完成(0)";
+		} else if (val == 1) {
+			return "部分完成(0.5)"
+		} else if (val == 2) {
+			return "一般(1)";
+		} else if (val == 3) {
+			return "较好(1.5)";
 		}
 	}
 	
@@ -172,21 +210,109 @@
 </script>
 </head>
 <body style="margin: 1px">
-<table id="dg" title="任务考核"
+<table id="dg" title="任务考核" fit="false"
    fitColumns="true" pagination="true" rownumbers="true" singleSelect="true" scrollbarSize="0"
    url="${pageContext.request.contextPath}/rwKh/list" fit="true" >
    <thead>
    	<tr>
    		<th field="realName" width="100" align="center" >姓名</th>
-   		<th field="zyTotal" width="100" align="center">重要任务个数</th>
-   		<th field="ptTotal" width="100" align="center">一般任务个数</th>
+   		<th field="count" width="100" align="center">任务个数</th>
    		<th field="totalScore" width="100" align="center">任务总分</th>
    		<th field="operator" width="100" align="center" formatter="formateOperator">操作</th>
    		<th field="userId" hidden="true"></th>
    	</tr>
    </thead>
- </table>
- 
+</table>
+<br/>
+<!-- 图表 -->
+<div id="kaohe-pic-zhu" style="width:600px;height:400px;float: left;"></div>
+<div id="kaohe-pic-bing" style="width:600px;height:400px;float: right;"></div>
+<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('kaohe-pic-zhu'));
+        var myChart2 = echarts.init(document.getElementById('kaohe-pic-bing'));
+
+        $.ajax({
+        	url:"${pageContext.request.contextPath}/rwKh/score-name",
+        	async:true,
+        	cache:false,
+        	type:"POST",
+        	dataType:"json",
+        	success:function(result){
+        		//柱状图
+                myChart.setOption({
+                	title: {
+                        text: '任务 - 人员 - 柱状图'
+                    },
+                    tooltip: {},
+                    legend: {
+                        data:['任务总分','任务个数']
+                    },
+                    xAxis: {
+                     type:"category",
+                     data:result.names,
+                     axisLabel: {  
+                    	   interval:0,  
+                    	   rotate:40  
+                    	}  
+                    },
+                    yAxis: {
+                    	type:"value"
+                    },
+                    series: [
+                    	{
+	                        name: '任务总分',
+	                        type: 'bar',
+	                        data: result.scores
+                    	},
+                    	{
+                    		name: '任务个数',
+ 	                        type: 'bar',
+ 	                        data: result.counts
+                    	}
+                    ]
+                });
+        		
+        		//饼状图
+                myChart2.setOption({
+                	title : {
+                        text: '任务 - 人员 - 饼状图',
+                        x:'left'
+                    },
+                    tooltip : {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+                    legend: {
+                        type: 'scroll',
+                        orient: 'vertical',
+                        right: 'right',
+                        data: result.names
+                    },
+                    series : [
+                        {
+                            name: '姓名',
+                            type: 'pie',
+                            radius : '55%',
+                            center: ['40%', '50%'],
+                            data: result.data,
+                            itemStyle: {
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                });
+        	}
+        });
+        
+       
+        
+</script>
+
 <!-- 查看任务详细开始 -->
 <div id="dd" class="easyui-dialog" style="width:600px;height:430px;" closed="true">   
 
@@ -194,15 +320,19 @@
 <!-- 查看任务详细结束 -->
 
 <!-- 查看某个用户的考核详情开始 --> 
-<div id="kh-dlg" class="easyui-dialog" title="查看考核详情" style="width:800px;height:500px;"
+<div id="kh-dlg" class="easyui-dialog" title="查看考核详情" style="width:800px;height:400px;"
     data-options="closed:true">
 	<table id="kh-dg" class="easyui-datagrid" fit="true" scrollbarSize="0" style="width: 100%;height: 100%;"
 	   fitColumns="true" pagination="true" rownumbers="true" singleSelect="true" nowrap="false">
 	   <thead>
 	   	<tr>
-	   		<th field="rwTitle" width="150" align="center" formatter="formatTitle" >标题</th>
-	   		<th field="score" width="50" align="center" >分数</th>
-	   		<th field="completeSX" width="50" align="center" formatter="formateRwRx" >完成时效</th>
+	   		<th field="rwTitle" width="100" align="center" formatter="formatTitle" >标题</th>
+	   		<th field="score" width="50" align="center" formatter="formateRwScore">分数</th>
+	   		<th field="dengji" width="50" align="center" formatter="formateRwDengJi" >等级(分数)</th>
+	   		<th field="nandu" width="50" align="center" formatter="formateRwNanDu" >难度(分数)</th>
+	   		<th field="zhongyao" width="50" align="center" formatter="formateRwZhongYao" >重要性(分数)</th>
+	   		<th field="completeSX" width="50" align="center" formatter="formateRwRx" >完成时效(分数)</th>
+	   		<th field="completeQK" width="50" align="center" formatter="formateRwQk" >完成情况(系数)</th>
 	   		<th field="completeDate" width="50" align="center" formatter="formatPubtime" >完成日期</th>
 	   		<th field="id" hidden="true"></th>
 	   	</tr>
