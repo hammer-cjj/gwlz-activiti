@@ -110,6 +110,26 @@ public class RwServiceImpl implements RwService {
 		return rwMapper.completeDb(id);
 	}
 
+	@Override
+	public List<RwExt> listAllRwGeRen(Rw rw) {
+		return rwMapper.listAllRwGeRen(rw);
+	}
+
+	@Override
+	public List<RwExt> listSh(Rw rw) {
+		return rwMapper.listSh(rw);
+	}
+
+	@Override
+	public List<RwExt> listAllSh(Rw rw) {
+		return rwMapper.listAllSh(rw);
+	}
+
+	@Override
+	public int completeSh(int id) {
+		return rwMapper.completeSh(id);
+	}
+
 	/**
 	 * 统计已经超期
 	 */

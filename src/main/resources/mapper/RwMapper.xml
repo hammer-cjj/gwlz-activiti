@@ -6,8 +6,8 @@
 <mapper namespace="com.zsga.cf.gwlz.mapper.RwMapper">
 	<!-- 新增任务 -->
 	<insert id="addRw" useGeneratedKeys="true" keyProperty="id" parameterType="Rw">
-		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, pubTime,state,rwFjName,cq,completeQK,completeSX,completeDate,bwFlag,nandu,zhongyao,dengji) 
-  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{pubTime},#{state},#{rwFjName},#{cq},#{completeQK},#{completeSX},#{completeDate},#{bwFlag},#{nandu},#{zhongyao},#{dengji})
+		insert into rw(rwTitle, startTime, endTime, rwFpId, rwZrId, rwCyId, rwContent, rwFj, pubTime,state,rwFjName,cq,completeQK,completeSX,completeDate,bwFlag,nandu,zhongyao,dengji,shenhe) 
+  		values(#{rwTitle},#{startTime},#{endTime},#{rwFpId},#{rwZrId},#{rwCyId},#{rwContent}, #{rwFj},#{pubTime},#{state},#{rwFjName},#{cq},#{completeQK},#{completeSX},#{completeDate},#{bwFlag},#{nandu},#{zhongyao},#{dengji},#{shenhe})
 	</insert>
 	
 	<!-- 修改任务 -->
@@ -26,7 +26,7 @@
 		WHERE
 			(FIND_IN_SET(#{id},rwCyId)
 		OR rwZrId = #{id})
-		and bwFlag = 1 and Year(pubTime) = Year(Now())
+		and shenhe = 1 and bwFlag = 1 and Year(pubTime) = Year(Now())
 		order by completeDate desc,pubTime desc
   	</select>
 	
@@ -43,7 +43,7 @@
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id
 		<where>
-			bwFlag = 1
+			bwFlag = 1 and shenhe = 1
 			<if test="rwTitle != null">
 				and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 			</if>
@@ -69,7 +69,7 @@
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id
 		<where>
-			bwFlag = 0
+			bwFlag = 0 and shenhe = 1
 			<if test="rwTitle != null">
 				and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 			</if>
@@ -87,6 +87,56 @@
 			pubTime DESC 
   	</select>
   	
+  	<!-- 查看个人提交的任务 -->
+  	<select id="listAllRwGeRen" parameterType="Rw" resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id
+		<where>
+			bwFlag = 1 and shenhe = 0
+			<if test="rwTitle != null">
+				and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+			</if>
+			and rw.rwZrId = #{rwZrId}
+		</where>
+		ORDER BY
+			pubTime DESC 
+  	</select>
+  	
+  	<!-- 查看待审核的任务 -->
+  	<select id="listSh" parameterType="Rw"  resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id 
+		WHERE
+			shenhe = 0 and rw.rwFpId = #{rwFpId}
+		<if test="rwTitle != null">
+			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+		</if>	
+		ORDER BY
+			pubTime DESC
+  	</select>
+  	
+  	<!-- 查看待审核的任务(admin) -->
+  	<select id="listAllSh" parameterType="Rw"  resultType="RwExt">
+  		SELECT
+			rw.*, user.realName realName
+		FROM
+			rw
+		LEFT JOIN USER ON rw.rwZrId = user.id 
+		WHERE
+			shenhe = 0
+		<if test="rwTitle != null">
+			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
+		</if>	
+		ORDER BY
+			pubTime DESC
+  	</select>
+  	
   	<!-- 查看我分配的任务(副处长 ) -->
   	<select id="listFpRw" parameterType="Rw"  resultType="RwExt">
   		SELECT
@@ -95,7 +145,7 @@
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id 
 		WHERE
-			rw.rwFpId = #{rwFpId} and bwFlag 
+			rw.rwFpId = #{rwFpId}
 		<if test="rwTitle != null">
 			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 		</if>	
@@ -120,7 +170,7 @@
 			rw
 		LEFT JOIN USER ON rw.rwZrId = user.id 
 		WHERE
-			rw.rwZrId = #{rwZrId} and bwFlag
+			rw.rwZrId = #{rwZrId}
 		<if test="rwTitle != null">
 			and rwTitle like "%"#{rwTitle,jdbcType=VARCHAR}"%"
 		</if>
@@ -211,6 +261,11 @@
   		update rw set bwFlag = 1,pubTime=now() where id = #{0}
   	</update>
   	
+  	<!-- 完成审核 -->
+  	<update id="completeSh">
+  		update rw set shenhe = 1,pubTime=now() where id = #{0}
+  	</update>
+  	
   	<!-- 查询未签收，进行中,已下发,并且未超期的任务 -->
   	<select id="listState_0_1" resultType="Rw">
   		select * from rw where state  in (0,1) and bwFlag = 1 and cq != 1
@@ -234,7 +289,7 @@
 			DATEDIFF(endTime, now()) &lt;= 3
 			AND DATEDIFF(endTime, now()) &gt;= 0
 		)
-		and bwFlag = 1
+		and bwFlag = 1 and shenhe = 1
   	</select>
   	
   	<!-- 责任人权限，统计距离截止日期小等于3天的任务 -->
@@ -253,7 +308,7 @@
 			DATEDIFF(endTime, now()) &lt;= 3
 			AND DATEDIFF(endTime, now()) &gt;= 0
 		)
-		and bwFlag = 1
+		and bwFlag = 1 and shenhe = 1
   	</select>
   	
   	<!-- 参与人权限，统计距离截止日期小等于3天的任务 -->
@@ -277,7 +332,7 @@
 			WHERE
 				receiveId = #{id}
 		)
-		and bwFlag = 1
+		and bwFlag = 1 and shenhe = 1
   	</select>
   	
   	<!-- 删除任务 -->

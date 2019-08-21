@@ -29,6 +29,24 @@ public class IndexController {
 	*/
 	
 	/**
+	 * 跳转到任务审核页面
+	 * @return
+	 */
+	@RequestMapping("/rwManageSh")
+	public String rwManageSh() {
+		return "rwManageSh";
+	}
+	
+	/**
+	 * 跳转到任务个人提交页面
+	 * @return
+	 */
+	@RequestMapping("/rwManageTj")
+	public String rwManageTj() {
+		return "rwManageTj";
+	}
+	
+	/**
 	 * 跳转到任务考核页面
 	 * @return
 	 */

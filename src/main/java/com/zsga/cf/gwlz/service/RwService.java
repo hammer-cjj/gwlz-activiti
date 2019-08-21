@@ -14,6 +14,9 @@ public interface RwService {
 	List<Rw> findMyRw(User user);
 	List<RwExt> listAllRw(Rw rw);
 	List<RwExt> listAllRwBw(Rw rw);
+	List<RwExt> listAllRwGeRen(Rw rw);
+	List<RwExt> listSh(Rw rw);
+	List<RwExt> listAllSh(Rw rw);
 	int rwSign(int id);
 	int rwComplete(int id);
 	int countWeiCqZr(User user);
@@ -21,4 +24,5 @@ public interface RwService {
 	int countWeiCqCy(User user);
 	//int countCq(User user);
 	int completeDb(int id);
+	int completeSh(int id);
 }

@@ -47,6 +47,8 @@ public class Rw {
 	private Integer zhongyao;
 	//任务等级: 特别紧急:3;紧急:2;一般:1
 	private Integer dengji;
+	//审核 0：未审核；1：已审核
+	private Integer shenhe;
 	public Integer getId() {
 		return id;
 	}
@@ -166,5 +168,11 @@ public class Rw {
 	}
 	public void setCompleteQK(Integer completeQK) {
 		this.completeQK = completeQK;
+	}
+	public Integer getShenhe() {
+		return shenhe;
+	}
+	public void setShenhe(Integer shenhe) {
+		this.shenhe = shenhe;
 	}
 }

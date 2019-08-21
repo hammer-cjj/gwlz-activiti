@@ -225,8 +225,8 @@
 </table>
 <br/>
 <!-- 图表 -->
-<div id="kaohe-pic-zhu" style="width:600px;height:400px;float: left;"></div>
-<div id="kaohe-pic-bing" style="width:600px;height:400px;float: right;"></div>
+<div id="kaohe-pic-zhu" style="width:550px;height:400px;float: left;"></div>
+<div id="kaohe-pic-bing" style="width:550px;height:400px;float: right;"></div>
 <script type="text/javascript">
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('kaohe-pic-zhu'));

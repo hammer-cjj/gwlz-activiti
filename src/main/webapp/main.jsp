@@ -121,7 +121,7 @@
 </script>
 </head>
 <body class="easyui-layout">
-    <div region="north" style="height:100px;background-color: #E0ECFF">
+    <div region="north" style="height:110px;background-color: #E0ECFF">
     	<table style="padding: 10px" width="100%">
 			<tr>
 				<td width="50%">
@@ -139,15 +139,18 @@
 			<div title="工作管理"  data-options="iconCls:'icon-computer'" style="padding:10px;">
 				<c:choose>
 					<c:when test="${currentUser.roleId == 1 or  currentUser.roleId == 0}">
-				<a href="javascript:openTab('任务督办管理','rwManage','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">任务督办管理</a>
-				<a href="javascript:openTab('备忘任务管理','rwManageBw','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">备忘任务管理</a>
+						<a href="javascript:openTab('任务督办管理','rwManage','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">任务督办管理</a>
+						<a href="javascript:openTab('备忘任务管理','rwManageBw','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">备忘任务管理</a>
+						<a href="javascript:openTab('任务审核管理','rwManageSh','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">任务审核管理</a>
 					</c:when>
 					<c:otherwise>
 						<c:if test="${currentUser.roleId == 2 }">
+							<a href="javascript:openTab('任务审核管理','rwManageSh','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">任务审核管理</a>
 							<a href="javascript:openTab('我分配的任务','rwManageFp','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">我分配的任务</a>
 						</c:if>
 						<a href="javascript:openTab('我负责的任务','rwManageZr','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">我负责的任务</a>
 						<a href="javascript:openTab('我参与的任务','rwManageCy','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">我参与的任务</a>
+						<a href="javascript:openTab('个人提交任务','rwManageTj','icon-archive')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-archive'" style="width: 150px;">个人提交任务</a>
 					</c:otherwise>
 				</c:choose>
 			</div>

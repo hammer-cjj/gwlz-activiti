@@ -19,6 +19,12 @@ public interface RwMapper {
 	List<RwExt> listAllRw(Rw rw);
 	//查询所有备忘任务(处长和admin)
 	List<RwExt> listAllRwBw(Rw rw);
+	//查询所有个人提交的任务
+	List<RwExt> listAllRwGeRen(Rw rw);
+	//查询待审核的任务
+	List<RwExt> listSh(Rw rw);
+	//查询待审核的任务admin
+	List<RwExt> listAllSh(Rw rw);
 	//查询我分配的任务(副处长)
 	List<RwExt> listFpRw(Rw rw);
 	//查询我负责的任务
@@ -53,4 +59,6 @@ public interface RwMapper {
 	//int countCq(User user);
 	//备忘录中完成督办
 	int completeDb(int id);
+	//完成审核
+	int completeSh(int id);
 }
